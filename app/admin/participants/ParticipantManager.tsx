@@ -2,11 +2,41 @@
 
 import { useState } from 'react';
 import { Search, Upload, Plus, Trash2, Edit2 } from 'lucide-react';
+import Papa from 'papaparse';
+import { uploadParticipantsBulk } from './actions';
 
 export default function ParticipantManager({ events, initialParticipants = [] }: any) {
   const [selectedEventId, setSelectedEventId] = useState('');
   const [participants, setParticipants] = useState(initialParticipants);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const mappedData = results.data.map((row: any) => ({
+          name: row.Name || row.name || '',
+          phone: row.Mobile || row.mobile || row.Phone || row.phone || '',
+          area_name: row.Area || row.area || '',
+          pincode: row.Pincode || row.pincode || '',
+          full_address: row.Address || row.address || '',
+          email: row.Email || row.email || '',
+        }));
+        
+        try {
+          await uploadParticipantsBulk(selectedEventId, mappedData);
+          alert('Bulk upload successful!');
+          window.location.reload();
+        } catch (err) {
+          alert('Error uploading participants');
+        }
+      }
+    });
+  };
 
   const filteredParticipants = participants.filter((p: any) => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -42,7 +72,17 @@ export default function ParticipantManager({ events, initialParticipants = [] }:
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+            <input 
+              type="file" 
+              id="csv-upload" 
+              className="hidden" 
+              accept=".csv" 
+              onChange={handleFileUpload} 
+            />
+            <button 
+              onClick={() => document.getElementById('csv-upload')?.click()}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            >
               <Upload className="w-4 h-4" /> Bulk Upload CSV
             </button>
           </div>
