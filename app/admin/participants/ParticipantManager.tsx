@@ -149,7 +149,8 @@ export default function ParticipantManager({ events, initialParticipants = [] }:
               <thead>
                 <tr className="bg-slate-950 text-slate-400 text-sm border-b border-slate-800">
                   <th className="px-6 py-4 font-medium">Name</th>
-                  <th className="px-6 py-4 font-medium">Area / Pincode</th>
+                  <th className="px-6 py-4 font-medium">Area</th>
+                  <th className="px-6 py-4 font-medium">Pincode</th>
                   <th className="px-6 py-4 font-medium">Mobile</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
@@ -158,7 +159,8 @@ export default function ParticipantManager({ events, initialParticipants = [] }:
                 {filteredParticipants.map((p: any) => (
                   <tr key={p.id} className="text-slate-300 hover:bg-slate-800/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-white">{p.name}</td>
-                    <td className="px-6 py-4">{p.area_name} ({p.pincode})</td>
+                    <td className="px-6 py-4">{p.area_name}</td>
+                    <td className="px-6 py-4">{p.pincode}</td>
                     <td className="px-6 py-4">{p.phone}</td>
                     <td className="px-6 py-4 text-right flex justify-end gap-2">
                       <button 
