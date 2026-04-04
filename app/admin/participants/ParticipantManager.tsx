@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Upload, Plus, Trash2, Edit2, X } from 'lucide-react';
+import { Search, Upload, Plus, Trash2, Edit2, X, Download } from 'lucide-react';
 import Papa from 'papaparse';
 import { uploadParticipantsBulk, deleteParticipant, addParticipant, updateParticipant } from './actions';
 
@@ -80,6 +80,39 @@ export default function ParticipantManager({ events, initialParticipants = [] }:
     setEditingParticipant(null);
   };
 
+  const handleDownloadCSV = () => {
+    if (filteredParticipants.length === 0) {
+      alert('No data to download');
+      return;
+    }
+
+    const csvData = filteredParticipants.map(p => ({
+      Name: p.name,
+      Mobile: p.phone,
+      Email: p.email,
+      Area: p.area_name,
+      Pincode: p.pincode,
+      Address: p.full_address,
+      'Offering Ride': p.is_offering_ride ? 'Yes' : 'No',
+      'Seats Available': p.seats_available
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    const eventTitle = events.find((e: any) => e.id === selectedEventId)?.title || 'participants';
+    const filename = `participants-${eventTitle.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.csv`;
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredParticipants = participants.filter((p: any) => 
     (selectedEventId ? p.event_id === selectedEventId : true) &&
     (p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -139,6 +172,12 @@ export default function ParticipantManager({ events, initialParticipants = [] }:
                 className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
               >
                 <Upload className="w-4 h-4" /> Bulk Upload CSV
+              </button>
+              <button 
+                onClick={handleDownloadCSV}
+                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors border border-slate-700"
+              >
+                <Download className="w-4 h-4" /> Download CSV
               </button>
             </div>
           </div>
