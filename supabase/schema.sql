@@ -39,14 +39,21 @@ CREATE TABLE public.participants (
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.participants ENABLE ROW LEVEL SECURITY;
 
--- Events: Anyone can read (anon and authenticated)
+-- Enable read access for all users on events
 CREATE POLICY "Enable read access for all users on events" ON public.events
     FOR SELECT USING (true);
 
--- Events: Only authenticated users (admins, if we use auth) can insert/update/delete.
--- For now, if we are doing a completely open API or basic hardcoded admin, 
--- we might just allow insert/update from the backend using the Service Role Key.
--- The default Anon key won't be able to insert/update events.
+-- Enable insert access for all users on events (Admin operations)
+CREATE POLICY "Enable insert access for all users on events" ON public.events
+    FOR INSERT WITH CHECK (true);
+
+-- Enable update access for all users on events (Admin operations)
+CREATE POLICY "Enable update access for all users on events" ON public.events
+    FOR UPDATE USING (true);
+
+-- Enable delete access for all users on events (Admin operations)
+CREATE POLICY "Enable delete access for all users on events" ON public.events
+    FOR DELETE USING (true);
 
 -- Participants: Anyone can read
 CREATE POLICY "Enable read access for all users on participants" ON public.participants
@@ -55,6 +62,14 @@ CREATE POLICY "Enable read access for all users on participants" ON public.parti
 -- Participants: Anyone can insert (self-registration)
 CREATE POLICY "Enable insert access for all users on participants" ON public.participants
     FOR INSERT WITH CHECK (true);
+
+-- Enable update access for all users on participants (Admin operations)
+CREATE POLICY "Enable update access for all users on participants" ON public.participants
+    FOR UPDATE USING (true);
+
+-- Enable delete access for all users on participants (Admin operations)
+CREATE POLICY "Enable delete access for all users on participants" ON public.participants
+    FOR DELETE USING (true);
 
 -- The backend API using the Supabase Service Role key will bypass RLS for admin operations.
 

@@ -16,15 +16,20 @@ export default async function AdminEventsPage() {
     'use server';
     await checkAdmin();
     
-    await supabase.from('events').insert([{
+    const { error } = await supabase.from('events').insert([{
       title: formData.get('title') as string,
       event_date: formData.get('event_date') as string,
       event_time: formData.get('event_time') as string,
       venue_name: formData.get('venue_name') as string,
-      venue_address: formData.get('venue_address') as string,
-      event_type: formData.get('event_type') as string,
-      description: formData.get('description') as string,
+      venue_address: (formData.get('venue_address') as string) || '',
+      event_type: (formData.get('event_type') as string) || 'seminar',
+      description: (formData.get('description') as string) || '',
     }]);
+
+    if (error) {
+      console.error('Error creating event:', error);
+      throw new Error('Failed to create event. Please check the database configuration.');
+    }
 
     revalidatePath('/admin/events');
     revalidatePath('/events');
@@ -34,7 +39,11 @@ export default async function AdminEventsPage() {
     'use server';
     await checkAdmin();
     const id = formData.get('id') as string;
-    await supabase.from('events').delete().eq('id', id);
+    const { error } = await supabase.from('events').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting event:', error);
+      throw new Error('Failed to delete event.');
+    }
     revalidatePath('/admin/events');
     revalidatePath('/events');
   }
