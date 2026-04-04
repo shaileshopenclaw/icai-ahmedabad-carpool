@@ -1,12 +1,20 @@
 import Link from 'next/link';
 import { ArrowRight, Car, MapPin, Users, Leaf, ShieldCheck } from 'lucide-react';
 import { calculateGreenMetrics } from '@/lib/greenCalc';
-// In a real app, you would fetch the total rides shared from Supabase here.
-// For the layout purposes, we'll use a mocked number representing past success.
+import { supabase } from '@/lib/supabase';
 
 export default async function Home() {
-  // Mocked for the initial UI:
-  const totalRidesShared = 1420;
+  // Fetch total count of participants who have is_offering_ride set to true
+  const { count, error } = await supabase
+    .from('participants')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_offering_ride', true);
+
+  if (error) {
+    console.error('Error fetching total rides shared:', error);
+  }
+
+  const totalRidesShared = count || 0;
   const metrics = calculateGreenMetrics(totalRidesShared);
 
   return (
