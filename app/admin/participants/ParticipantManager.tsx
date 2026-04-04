@@ -7,7 +7,7 @@ import { uploadParticipantsBulk, deleteParticipant, addParticipant, updatePartic
 
 export default function ParticipantManager({ events, initialParticipants = [] }: any) {
   const [selectedEventId, setSelectedEventId] = useState('');
-  const [participants, setParticipants] = useState(initialParticipants);
+  const [participants, setParticipants] = useState<any[]>(initialParticipants);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingParticipant, setEditingParticipant] = useState<any>(null);
@@ -44,7 +44,7 @@ export default function ParticipantManager({ events, initialParticipants = [] }:
     if (confirm('Are you sure you want to delete this participant?')) {
       try {
         await deleteParticipant(id);
-        setParticipants(prev => prev.filter(p => p.id !== id));
+        setParticipants((prev: any[]) => prev.filter(p => p.id !== id));
       } catch (err) {
         alert('Error deleting participant');
       }

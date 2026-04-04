@@ -17,13 +17,13 @@ export default async function AdminEventsPage() {
     await checkAdmin();
     
     await supabase.from('events').insert([{
-      title: formData.get('title'),
-      event_date: formData.get('event_date'),
-      event_time: formData.get('event_time'),
-      venue_name: formData.get('venue_name'),
-      venue_address: formData.get('venue_address'),
-      event_type: formData.get('event_type'),
-      description: formData.get('description'),
+      title: formData.get('title') as string,
+      event_date: formData.get('event_date') as string,
+      event_time: formData.get('event_time') as string,
+      venue_name: formData.get('venue_name') as string,
+      venue_address: formData.get('venue_address') as string,
+      event_type: formData.get('event_type') as string,
+      description: formData.get('description') as string,
     }]);
 
     revalidatePath('/admin/events');
@@ -33,7 +33,7 @@ export default async function AdminEventsPage() {
   async function deleteEvent(formData: FormData) {
     'use server';
     await checkAdmin();
-    const id = formData.get('id');
+    const id = formData.get('id') as string;
     await supabase.from('events').delete().eq('id', id);
     revalidatePath('/admin/events');
     revalidatePath('/events');
