@@ -13,17 +13,31 @@ export default function SearchPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    const cleanQuery = query.trim();
+    if (!cleanQuery) return;
 
     setLoading(true);
     setHasSearched(true);
 
     try {
+      // Normalize query: if it's mostly digits, remove spaces for better pincode matching
+      const isLikelyPincode = /^\d[\d\s]+\d$/.test(cleanQuery);
+      const normalizedQuery = isLikelyPincode ? cleanQuery.replace(/\s+/g, '') : cleanQuery;
+
       // Search across area_name and pincode
-      const { data, error } = await supabase
+      // We use a more optimized approach by checking if it's a pincode-like search first
+      let queryBuilder = supabase
         .from('participants')
-        .select('*, events(title)')
-        .or(`area_name.ilike.%${query}%,pincode.ilike.%${query}%`)
+        .select('*, events(title)');
+      
+      if (/^\d{6}$/.test(normalizedQuery)) {
+        // Exact match for 6-digit pincode is much faster
+        queryBuilder = queryBuilder.or(`pincode.eq.${normalizedQuery},area_name.ilike.%${normalizedQuery}%`);
+      } else {
+        queryBuilder = queryBuilder.or(`area_name.ilike.%${normalizedQuery}%,pincode.ilike.%${normalizedQuery}%`);
+      }
+
+      const { data, error } = await queryBuilder
         .order('created_at', { ascending: false })
         .limit(50);
 

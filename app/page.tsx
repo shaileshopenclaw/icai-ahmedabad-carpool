@@ -27,7 +27,7 @@ export default async function Home() {
         <div className="container relative mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/40 text-blue-300 ring-1 ring-inset ring-blue-500/20 mb-8">
             <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
-            Ahmedabad Branch of WIRC of ICAI
+            Jointly by Sukrut Parivaar & ICAI Ahmedabad Branch
           </div>
           
           <h1 className="max-w-4xl mx-auto text-5xl font-extrabold tracking-tight sm:text-7xl mb-8 leading-tight">
@@ -44,18 +44,18 @@ export default async function Home() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link 
+              href="/search" 
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-amber-600 px-8 py-4 text-sm font-semibold text-white hover:bg-amber-500 transition-all shadow-lg shadow-amber-900/20"
+            >
+              Find Nearby Riders
+              <MapPin className="w-4 h-4" />
+            </Link>
+            <Link 
               href="/events" 
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-4 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-white/5 px-8 py-4 text-sm font-semibold text-white ring-1 ring-inset ring-white/10 hover:bg-white/10 transition-all"
             >
               Browse Events
               <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link 
-              href="/search" 
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-white/5 px-8 py-4 text-sm font-semibold text-white ring-1 ring-inset ring-white/10 hover:bg-white/10 transition-all"
-            >
-              Find Nearby Riders
-              <MapPin className="w-4 h-4 text-amber-500" />
             </Link>
           </div>
         </div>

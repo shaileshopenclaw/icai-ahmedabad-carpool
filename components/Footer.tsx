@@ -27,15 +27,18 @@ export default function Footer() {
           <h3 className="font-semibold text-white mb-4">Branch Office</h3>
           <address className="not-italic text-sm space-y-2">
             <p>Ahmedabad Branch of WIRC of ICAI</p>
-            <p>123 ICAI Bhawan, Naranpura,</p>
-            <p>Ahmedabad, Gujarat 380014</p>
+            <p>ICAI Bhawan, Opp. Aaryan Euphoria / Eminent,</p>
+            <p>Nr. Tavish Avenue, Damru Circle to Chanakyapuri Road,</p>
+            <p>Ghatlodia, Ahmedabad - 380061</p>
             <p className="mt-4"><a href="mailto:ahmedabad@icai.org" className="text-blue-400 hover:underline">ahmedabad@icai.org</a></p>
           </address>
         </div>
-      </div>
-      
-      <div className="container mx-auto px-4 mt-12 pt-8 border-t border-white/5 text-sm text-center">
+        </div>
+
+        <div className="container mx-auto px-4 mt-12 pt-8 border-t border-white/5 text-sm text-center">
+        <p className="mb-2 text-slate-300 font-medium">This initiative is driven jointly by Sukrut Parivaar & ICAI Ahmedabad Branch.</p>
         <p>© {new Date().getFullYear()} Ahmedabad Branch of WIRC of ICAI. All rights reserved.</p>
+
         <p className="mt-2 text-xs text-slate-500">Designed to support the Net Zero Initiative.</p>
       </div>
     </footer>

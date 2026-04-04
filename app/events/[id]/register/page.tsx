@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { geocodeLocation } from '@/lib/geocode';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, MapPin, CheckCircle } from 'lucide-react';
 
-export default function RegisterRidePage({ params }: { params: { id: string } }) {
+export default function RegisterRidePage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = use(paramsPromise);
+  const { id } = params;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -30,11 +32,11 @@ export default function RegisterRidePage({ params }: { params: { id: string } })
   useEffect(() => {
     // Fetch basic event info just to show the title
     async function fetchEvent() {
-      const { data } = await supabase.from('events').select('title, event_date').eq('id', params.id).single();
+      const { data } = await supabase.from('events').select('title, event_date').eq('id', id).single();
       if (data) setEventData(data);
     }
     fetchEvent();
-  }, [params.id]);
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
@@ -47,8 +49,15 @@ export default function RegisterRidePage({ params }: { params: { id: string } })
     setErrorMsg('');
 
     try {
+      // 1. Trim inputs
+      const trimmedArea = formData.area_name.trim();
+      const trimmedPincode = formData.pincode.trim().replace(/\s+/g, '');
+      const trimmedName = formData.name.trim();
+      const trimmedEmail = formData.email.trim();
+      const trimmedPhone = formData.phone.trim().replace(/\s+/g, '');
+
       // 1. Geocode the provided pincode + area to get rough lat/lng
-      const geocodeQuery = `${formData.area_name}, ${formData.pincode}`;
+      const geocodeQuery = `${trimmedArea}, ${trimmedPincode}`;
       const location = await geocodeLocation(geocodeQuery);
       
       // 2. Insert into Supabase
@@ -56,15 +65,15 @@ export default function RegisterRidePage({ params }: { params: { id: string } })
         .from('participants')
         .insert([
           {
-            event_id: params.id,
-            name: formData.name,
-            phone: formData.phone,
-            email: formData.email,
-            whatsapp_number: formData.whatsapp_number || formData.phone, // Default WA to phone
-            area_name: formData.area_name,
-            pincode: formData.pincode,
-            full_address: formData.full_address,
-            linkedin_url: formData.linkedin_url,
+            event_id: id,
+            name: trimmedName,
+            phone: trimmedPhone,
+            email: trimmedEmail,
+            whatsapp_number: formData.whatsapp_number?.trim().replace(/\s+/g, '') || trimmedPhone, // Default WA to phone
+            area_name: trimmedArea,
+            pincode: trimmedPincode,
+            full_address: formData.full_address?.trim(),
+            linkedin_url: formData.linkedin_url?.trim(),
             is_offering_ride: formData.is_offering_ride,
             seats_available: formData.is_offering_ride ? Number(formData.seats_available) : 0,
             latitude: location?.lat || null,
@@ -77,7 +86,7 @@ export default function RegisterRidePage({ params }: { params: { id: string } })
       setSuccess(true);
       // Wait 3 seconds and redirect to event page
       setTimeout(() => {
-        router.push(`/events/${params.id}`);
+        router.push(`/events/${id}`);
         router.refresh();
       }, 3000);
 
@@ -108,7 +117,7 @@ export default function RegisterRidePage({ params }: { params: { id: string } })
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <Link href={`/events/${params.id}`} className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white mb-6 transition-colors">
+      <Link href={`/events/${id}`} className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Event
       </Link>
 

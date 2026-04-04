@@ -7,8 +7,8 @@ import Footer from '@/components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ICAI Ahmedabad CarPool',
-  description: 'Connect and carpool with fellow CA members and students for ICAI Ahmedabad events.',
+  title: 'ICAI Ahmedabad CarPool | Sukrut Parivaar & ICAI Ahmedabad',
+  description: 'The official carpooling platform jointly driven by Sukrut Parivaar and ICAI Ahmedabad Branch for CA members and students.',
 };
 
 export default function RootLayout({

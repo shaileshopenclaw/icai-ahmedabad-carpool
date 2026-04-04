@@ -8,16 +8,18 @@ import ParticipantCard, { Participant } from '@/components/ParticipantCard';
 
 export const revalidate = 0; // Don't cache this page so carpoolers are always live
 
-export default async function EventDetailPage({ params }: { params: { id: string } }) {
+export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  
   // Try UUID parsing
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id);
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   if (!isUuid) return notFound();
 
   // Fetch Event
   const { data: event, error: eventError } = await supabase
     .from('events')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (eventError || !event) return notFound();
@@ -26,7 +28,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
   const { data: participants, error: participantsError } = await supabase
     .from('participants')
     .select('*')
-    .eq('event_id', params.id)
+    .eq('event_id', id)
     .order('pincode', { ascending: true }) // Group by pincode implicitly
     .order('created_at', { ascending: false });
 
