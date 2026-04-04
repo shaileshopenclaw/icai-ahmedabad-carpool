@@ -25,21 +25,46 @@ export default function SearchPage() {
       const normalizedQuery = isLikelyPincode ? cleanQuery.replace(/\s+/g, '') : cleanQuery;
 
       // Search across area_name and pincode
-      // We use a more optimized approach by checking if it's a pincode-like search first
-      let queryBuilder = supabase
-        .from('participants')
-        .select('*, events(title)');
+      let data, error;
       
       if (/^\d{6}$/.test(normalizedQuery)) {
-        // Exact match for 6-digit pincode is much faster
-        queryBuilder = queryBuilder.or(`pincode.eq.${normalizedQuery},area_name.ilike.%${normalizedQuery}%`);
-      } else {
-        queryBuilder = queryBuilder.or(`area_name.ilike.%${normalizedQuery}%,pincode.ilike.%${normalizedQuery}%`);
-      }
+        // STEP 1: Try exact pincode match first (indexed and fast)
+        console.log('Searching by exact pincode:', normalizedQuery);
+        const result = await supabase
+          .from('participants')
+          .select('*, events(title)')
+          .eq('pincode', normalizedQuery)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        
+        data = result.data;
+        error = result.error;
 
-      const { data, error } = await queryBuilder
-        .order('created_at', { ascending: false })
-        .limit(50);
+        // STEP 2: If no exact pincode match, OR if we want to expand to area name
+        if (!error && (!data || data.length === 0)) {
+           console.log('No exact pincode match, falling back to area search');
+           const fallbackResult = await supabase
+            .from('participants')
+            .select('*, events(title)')
+            .ilike('area_name', `%${normalizedQuery}%`)
+            .order('created_at', { ascending: false })
+            .limit(50);
+           
+           data = fallbackResult.data;
+           error = fallbackResult.error;
+        }
+      } else {
+        // For non-pincode queries, search area_name OR pincode (slower but necessary)
+        const result = await supabase
+          .from('participants')
+          .select('*, events(title)')
+          .or(`area_name.ilike.%${normalizedQuery}%,pincode.ilike.%${normalizedQuery}%`)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        
+        data = result.data;
+        error = result.error;
+      }
 
       if (error) throw error;
       setResults(data as any);
@@ -88,10 +113,13 @@ export default function SearchPage() {
             <Loader2 className="w-10 h-10 animate-spin text-amber-500 mx-auto" />
           </div>
         ) : hasSearched && results.length === 0 ? (
-          <div className="text-center py-16 bg-slate-900 border border-slate-800 rounded-xl">
+          <div className="text-center py-16 bg-slate-900 border border-slate-800 rounded-xl px-6">
              <MapPin className="w-12 h-12 text-slate-600 mx-auto mb-3" />
              <h3 className="text-xl font-semibold text-white mb-2">No riders found in this area</h3>
-             <p className="text-slate-400">Try searching for a nearby prominent area name or adjacent pincode.</p>
+             <p className="text-slate-400 max-w-md mx-auto">Try searching for a nearby prominent area name or a broader pincode. Ensure there are no extra spaces in your search.</p>
+             <div className="mt-8 pt-8 border-t border-slate-800">
+               <p className="text-xs text-slate-500 italic">Tip: If the search is still slow, please ensure database indexes are applied.</p>
+             </div>
           </div>
         ) : (
           hasSearched && (
