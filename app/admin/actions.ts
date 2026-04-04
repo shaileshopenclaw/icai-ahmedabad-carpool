@@ -4,8 +4,11 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export async function loginAdmin(formData: FormData) {
-  const password = formData.get('password');
-  const secret = process.env.ADMIN_SECRET || 'icai_ahmedabad_admin_2024';
+  const password = formData.get('password')?.toString().trim();
+  let secret = process.env.ADMIN_SECRET || 'icai_ahmedabad_admin_2024';
+  
+  // Clean up secret in case it has quotes from .env file
+  secret = secret.replace(/^["']|["']$/g, '').trim();
 
   if (password === secret) {
     const cookieStore = await cookies();

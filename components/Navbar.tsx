@@ -29,6 +29,12 @@ export default function Navbar() {
             <Leaf className="w-4 h-4" />
             Impact
           </Link>
+          <Link href="/admin/events" className="text-slate-300 hover:text-white transition-colors">
+            Admin Events
+          </Link>
+          <Link href="/admin/participants" className="text-slate-300 hover:text-white transition-colors">
+            Participants
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">

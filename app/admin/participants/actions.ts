@@ -6,9 +6,15 @@ import { revalidatePath } from 'next/cache';
 
 export async function addParticipant(data: any) {
   await checkAdmin();
-  const { error } = await supabase.from('participants').insert([data]);
+  const { data: newParticipant, error } = await supabase
+    .from('participants')
+    .insert([data])
+    .select()
+    .single();
+    
   if (error) throw error;
   revalidatePath('/admin/participants');
+  return newParticipant;
 }
 
 export async function updateParticipant(id: string, data: any) {
