@@ -83,7 +83,9 @@ export default function ParticipantManager({ events, initialParticipants = [] }:
   const filteredParticipants = participants.filter((p: any) => 
     (selectedEventId ? p.event_id === selectedEventId : true) &&
     (p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-     p.phone.includes(searchTerm))
+     p.phone.includes(searchTerm) ||
+     p.area_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     p.pincode.includes(searchTerm))
   );
 
   return (
